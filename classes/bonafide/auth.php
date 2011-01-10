@@ -13,10 +13,24 @@
  */
 class Bonafide_Auth {
 
+	/**
+	 * @param  string  default instance name
+	 */
 	public static $default = 'default';
 
+	/**
+	 * @param  array  Bonafide instances, by name
+	 */
 	public static $instances = array();
 
+	/**
+	 * Get a Bonafide instance. If the instance has not yet been created,
+	 * a new instance will be created with the specified configuration.
+	 *
+	 * @param   string  instance name
+	 * @param   array   additional configuration settings
+	 * @return  Bonafide
+	 */
 	public static function instance($name = NULL, array $config = NULL)
 	{
 		if ($name === NULL)
@@ -26,24 +40,116 @@ class Bonafide_Auth {
 
 		if ( ! isset(Auth::$instances[$name]))
 		{
-			$configuration = Arr::get(Kohana::config('auth'), $name, array());
+			// Load configuration
+			$configuration = Arr::get(Kohana::config('bonafide'), $name, array());
 
 			if ($config)
 			{
+				// Overload default configuration with specified settings
 				$configuration = $config + $configuration;
 			}
 
-			Auth::$instances[$name] = new Auth($configuration);
+			// Register the instance
+			Bonafide::$instances[$name] = new Bonafide($configuration);
 		}
 
-		return Auth::$instances[$name];
+		return Bonafide::$instances[$name];
 	}
 
+	/**
+	 * Load an authentication mechanism.
+	 *
+	 * @param   string  mechanism name
+	 * @param   array   configuration settings
+	 * @return  Bonafide_Mechanism
+	 */
+	public static function mechanism($name, array $config = NULL)
+	{
+		// Load configuration for this mechanism
+		$configuration = Kohana::config('bonafide/'.$name)->as_array();
+
+		if ($config)
+		{
+			$configuration = $config + $configuration;
+		}
+
+		// Build the class name path
+		$mechanism = 'Bonafide_Mechanism_'.$name;
+
+		// Register the class for this prefix
+		return new $mechanism($configuration);
+	}
+
+	/**
+	 * @param  array  configuration settings
+	 */
 	public $config = array();
 
-	public function __construct(array $config)
+	/**
+	 * @param  array  registered mechanisms
+	 */
+	public $mechanisms = array();
+
+	/**
+	 * Apply configuration and register prefixes.
+	 *
+	 * @param  array  configuration settings
+	 */
+	public function __construct(array $config = array())
 	{
-		$this->config = $config;
+		$this->config = $config + array(
+			'separator' => '~',
+		);
+
+		if (isset($this->config['prefixes']))
+		{
+			foreach ($this->config['prefixes'] as $prefix => $config)
+			{
+				// All prefixes are defined as: array($name, $config)
+				$name = array_shift($config);
+
+				if ($config)
+				{
+					// Additional configuration included
+					$config = array_shift($config);
+				}
+
+				// Register the prefix to the mechanism
+				$this->mechanisms[$prefix] = Bonafide::mechanism($name, $config);
+			}
+		}
+	}
+
+	/**
+	 * Check a user password against the password hash.
+	 *
+	 * @param   string   plaintext password
+	 * @param   string   hashed password, including prefix
+	 * @param   string   appended salt, should be unique per user
+	 * @param   integer  number of iterations to run
+	 * @return  boolean
+	 */
+	public function check($password, $hash, $salt = NULL, $iterations = NULL)
+	{
+		try
+		{
+			// Separate the prefix and the hash from the password
+			list($prefix, $hash) = explode($this->config['separator'], $hash, 2);
+		}
+		catch (ErrorException $e)
+		{
+			$prefix = '';
+		}
+
+		if ( ! isset($this->mechanisms[$prefix]))
+		{
+			throw new Bonafide_Exception('Prefix ":prefix" has not been registered, unable to check password', array(
+				':prefix' => $prefix,
+			));
+		}
+
+		// Check the password using this password hash mechanism
+		return $this->mechanisms[$prefix]->check($password, $hash, $salt, $iterations);
 	}
 
 } // End Bonafide_Auth
