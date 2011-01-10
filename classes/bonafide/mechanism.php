@@ -57,8 +57,6 @@ abstract class Bonafide_Mechanism {
 		}
 		while(--$iterations > 0);
 
-		echo Kohana::debug($hash, $password);
-
 		return ($hash === $password);
 	}
 
