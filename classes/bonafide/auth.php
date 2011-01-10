@@ -101,21 +101,41 @@ class Bonafide_Auth {
 			'separator' => '~',
 		);
 
-		if (isset($this->config['prefixes']))
+		if (isset($this->config['mechanisms']))
 		{
-			foreach ($this->config['prefixes'] as $prefix => $config)
+			foreach ($this->config['mechanisms'] as $data)
 			{
-				// All prefixes are defined as: array($name, $config)
-				$name = array_shift($config);
-
-				if ($config)
+				if (isset($data[1]))
 				{
-					// Additional configuration included
-					$config = array_shift($config);
+					// Format: array(string $name, array $config)
+					list($mechanism, $config) = $data;
+				}
+				else
+				{
+					// Supported format: array(string $name)
+					// Supported format: string $name
+					// Supported format: object $mechanism
+					$mechanism = is_array($data) ? array_shift($data) : $data;
+
+					// No configuration has been supplied
+					$config = NULL;
 				}
 
-				// Register the prefix to the mechanism
-				$this->mechanisms[$prefix] = Bonafide::mechanism($name, $config);
+				if ( ! is_object($mechanism))
+				{
+					// Load the mechanism and pass in config
+					$mechanism = Bonafide::mechanism($mechanism, $config);
+				}
+
+				if ( ! $mechanism instanceof Bonafide_Mechanism)
+				{
+					throw new Bonafide_Exception('Mechanism class ":class" must extend Bonafide_Mechanism', array(
+						':class' => get_class($mechanism),
+					));
+				}
+
+				// Register the mechanism by its prefix
+				$this->mechanisms[$mechanism->prefix] = $mechanism;
 			}
 		}
 	}

@@ -2,8 +2,10 @@
 
 return array(
 	'default' => array(
-		'prefixes' => array(
-			'' => array('hash', array(
+		'mechanisms' => array(
+			array('hash', array(
+				// 'prefix' => NULL,
+				// 'type' => 'sha256',
 				// 'key' => 'put your shared secret key here!',
 			)),
 		),

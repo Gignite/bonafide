@@ -14,6 +14,11 @@
 abstract class Bonafide_Mechanism {
 
 	/**
+	 * @param  string  unique hash prefix
+	 */
+	public $prefix;
+
+	/**
 	 * Applies configuration variables to the current mechanism.
 	 *
 	 * @param  array  configuration
