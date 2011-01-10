@@ -23,7 +23,7 @@ class Bonafide_Mechanism_Hash extends Bonafide_Mechanism {
 	 */
 	public $key = NULL;
 
-	public function hash($input, $salt = NULL)
+	protected function _hash($input, $salt = NULL)
 	{
 		// If no key is defined, this is the equivalent of calling hash()
 		return hash_hmac($this->type, $input.$salt, $this->key);

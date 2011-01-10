@@ -141,6 +141,21 @@ class Bonafide_Auth {
 	}
 
 	/**
+	 * Hash a plaintext password using the current hashing mechanism.
+	 *
+	 * @param   string   plaintext password
+	 * @param   string   appended salt, should be unique per user
+	 * @param   integer  number of iterations to run
+	 * @return  boolean
+	 */
+	public function hash($password, $salt = NULL, $iterations = NULL)
+	{
+		$mechanism = current($this->mechanisms);
+
+		return $mechanism->hash($password, $salt, $iterations);
+	}
+
+	/**
 	 * Check a user password against the password hash.
 	 *
 	 * @param   string   plaintext password
@@ -151,14 +166,21 @@ class Bonafide_Auth {
 	 */
 	public function check($password, $hash, $salt = NULL, $iterations = NULL)
 	{
-		try
+		// Get a list of all the registered prefixes
+		$prefixes = array_keys($this->mechanisms);
+
+		// Quote all the prefixes to make them suitable for regex matching
+		$prefixes = array_map('preg_quote', $prefixes);
+
+		if (preg_match('/^(?:'.implode('|', $prefixes).')/uD', $hash, $matches))
 		{
-			// Separate the prefix and the hash from the password
-			list($prefix, $hash) = explode($this->config['separator'], $hash, 2);
+			// Get the prefix from the match
+			list($prefix) = $matches;
 		}
-		catch (ErrorException $e)
+		else
 		{
-			$prefix = '';
+			// This hash has no registered prefix
+			$prefix = NULL;
 		}
 
 		if ( ! isset($this->mechanisms[$prefix]))
