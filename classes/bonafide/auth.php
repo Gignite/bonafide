@@ -2,9 +2,6 @@
 /**
  * Bona Fide is a flexible authentication system for the Kohana Framework.
  *
- * [!!] This module conflicts (intentionally) with the Auth module! Enabling both
- * at the same time will cause unexpected results!
- *
  * @package    Bona Fide
  * @category   Base
  * @author     Woody Gilk <woody.gilk@kohanaframework.org>
@@ -35,10 +32,10 @@ class Bonafide_Auth {
 	{
 		if ($name === NULL)
 		{
-			$name = Auth::$default;
+			$name = Bonafide::$default;
 		}
 
-		if ( ! isset(Auth::$instances[$name]))
+		if ( ! isset(Bonafide::$instances[$name]))
 		{
 			// Load configuration
 			$configuration = Arr::get(Kohana::config('bonafide'), $name, array());

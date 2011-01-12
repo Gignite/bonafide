@@ -2,8 +2,6 @@
 /**
  * Bona Fide is a flexible authentication system for the Kohana Framework.
  *
- * [!!] This module conflicts (intentionally) with the Auth module! Enabling both
- * at the same time will cause unexpected results!
  *
  * @package    Bona Fide
  * @category   Base
