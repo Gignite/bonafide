@@ -46,7 +46,7 @@ class Bonafide_Mechanism_Bcrypt extends Bonafide_Mechanism {
 			$salt = '$2a$'.$cost.'$'.$salt.'$';
 		}
 
-		return $this->prefix.$this->_hash($password, $salt);
+		return $this->_hash($password, $salt);
 	}
 
 	protected function _hash($input, $salt = NULL)
@@ -56,13 +56,10 @@ class Bonafide_Mechanism_Bcrypt extends Bonafide_Mechanism {
 
 	public function check($password, $hash, $salt = NULL, $iterations = NULL)
 	{
-		// Prefix may be adding length to the hash
-		$offset = strlen($this->prefix);
-
 		// $2a$ (4) $ (1) 00 (2) $ (1) <salt> (22)
-		$salt = substr($hash, $offset, 4 + 1 + 2 + 1 + 22 + $offset);
+		$salt = substr($hash, 0, 4 + 1 + 2 + 1 + 22);
 
-		return $hash === $this->hash($password, $salt.'$');
+		return parent::check($password, $hash, $salt, $iterations);
 	}
 
 } // End Bonafide_Mechansim_Bcrypt

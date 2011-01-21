@@ -100,7 +100,7 @@ class Bonafide_Auth {
 
 		if (isset($this->config['mechanisms']))
 		{
-			foreach ($this->config['mechanisms'] as $data)
+			foreach ($this->config['mechanisms'] as $prefix => $data)
 			{
 				if (isset($data[1]))
 				{
@@ -132,7 +132,7 @@ class Bonafide_Auth {
 				}
 
 				// Register the mechanism by its prefix
-				$this->mechanisms[$mechanism->prefix] = $mechanism;
+				$this->mechanisms[$prefix] = $mechanism;
 			}
 		}
 	}
@@ -147,9 +147,9 @@ class Bonafide_Auth {
 	 */
 	public function hash($password, $salt = NULL, $iterations = NULL)
 	{
-		$mechanism = current($this->mechanisms);
+		$prefix = key($this->mechanisms);
 
-		return $mechanism->hash($password, $salt, $iterations);
+		return $prefix.$this->mechanisms[$prefix]->hash($password, $salt, $iterations);
 	}
 
 	/**
@@ -186,6 +186,9 @@ class Bonafide_Auth {
 				':prefix' => $prefix,
 			));
 		}
+
+		// Remove the prefix from the hash
+		$hash = substr($hash, strlen($prefix));
 
 		// Check the password using this password hash mechanism
 		return $this->mechanisms[$prefix]->check($password, $hash, $salt, $iterations);
