@@ -43,17 +43,13 @@ class Bonafide_Mechanism_PBKDF2 extends Bonafide_Mechanism {
 	 * config file and use the [Bonafide::instance] method to create your
 	 * hash mechanism.
 	 *
-	 * [!!] Output from this method is in a binary format and it should be
-	 * stored in an appropriate field type. Typically a tinyblob can be used
-	 * for this.
-	 *
 	 * [!!] The iteration count can not be set using this method
 	 *
 	 * @link    http://www.ietf.org/rfc/rfc2898.txt
 	 * @param   string   plaintext password
 	 * @param   string   appended salt, should be unique per user
 	 * @param   integer  number of iterations to run
-	 * @return  binary   derived key
+	 * @return  string  base64 encoded derived key
 	 */
 	public function hash($password, $salt = NULL, $iterations = NULL)
 	{
