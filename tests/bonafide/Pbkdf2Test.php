@@ -42,7 +42,7 @@ Class Bonafide_Pbkdf2Test extends Unittest_TestCase
 	 * @param int    $key_length   Key length
 	 * @param string $expected     Expected value
 	 */
-	public function test_bbkdf2($password, $salt, $iterations, $key_length, $expected)
+	public function test_pbkdf2($password, $salt, $iterations, $key_length, $expected)
 	{
 		$config = array(
 			'type'  => 'sha1',
@@ -52,6 +52,6 @@ Class Bonafide_Pbkdf2Test extends Unittest_TestCase
 
 		$hash = Bonafide::mechanism('PBKDF2', $config)->hash($password, $salt);
 
-		$this->assertSame(bin2hex($hash), $expected);
+		$this->assertSame(bin2hex(base64_decode($hash)), $expected);
 	}
 }

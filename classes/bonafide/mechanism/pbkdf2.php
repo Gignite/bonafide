@@ -65,7 +65,7 @@ class Bonafide_Mechanism_PBKDF2 extends Bonafide_Mechanism {
 	 *
 	 * @param   string  input text
 	 * @param   string  appended salt
-	 * @return  binary
+	 * @return  string  base64 encoded derived key
 	 */
 	protected function _hash($input, $salt = NULL)
 	{
@@ -88,8 +88,8 @@ class Bonafide_Mechanism_PBKDF2 extends Bonafide_Mechanism {
 			$output .= $ib;
 		}
 
-		// Binary output
-		return substr($output, 0, $this->length);
+		// Base64 encode output to make storage easier
+		return base64_encode(substr($output, 0, $this->length));
 	}
 
 	/**
