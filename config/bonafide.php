@@ -9,7 +9,7 @@ return array(
 		'mechanisms' => array(
 
 			// Put your mechanisms here! The format is:
-			// string $id => array(string $mechanism, array $config)
+			// string $prefix => array(string $mechanism, array $config)
 
 		),
 	),
