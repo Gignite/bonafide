@@ -56,8 +56,8 @@ class Bonafide_Mechanism_Bcrypt extends Bonafide_Mechanism {
 
 	public function check($password, $hash, $salt = NULL, $iterations = NULL)
 	{
-		// $2a$ (4) $ (1) 00 (2) $ (1) <salt> (22)
-		$salt = substr($hash, 0, 4 + 1 + 2 + 1 + 22);
+		// $2a$ (4) 00 (2) $ (1) <salt> (22)
+		$salt = substr($hash, 0, 4 + 2 + 1 + 22);
 
 		return parent::check($password, $hash, $salt, $iterations);
 	}
