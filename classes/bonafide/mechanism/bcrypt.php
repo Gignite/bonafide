@@ -39,8 +39,8 @@ class Bonafide_Mechanism_Bcrypt extends Bonafide_Mechanism {
 			// Generate a random 22 character salt
 			$salt = Text::random('alnum', 22);
 
-			// Apply 0 padding to the cost
-			$cost = sprintf('%02d', $this->cost);
+			// Apply 0 padding to the cost, normalize to a range of 4-31
+			$cost = sprintf('%02d', min(31, max($this->cost, 4)));
 
 			// Create a salt suitable for bcrypt
 			$salt = '$2a$'.$cost.'$'.$salt.'$';
