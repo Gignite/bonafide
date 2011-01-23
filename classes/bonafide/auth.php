@@ -163,22 +163,8 @@ class Bonafide_Auth {
 	 */
 	public function check($password, $hash, $salt = NULL, $iterations = NULL)
 	{
-		// Get a list of all the registered prefixes
-		$prefixes = array_keys($this->mechanisms);
-
-		// Quote all the prefixes to make them suitable for regex matching
-		$prefixes = array_map('preg_quote', $prefixes);
-
-		if (preg_match('/^(?:'.implode('|', $prefixes).')/uD', $hash, $matches))
-		{
-			// Get the prefix from the match
-			list($prefix) = $matches;
-		}
-		else
-		{
-			// This hash has no registered prefix
-			$prefix = NULL;
-		}
+		// Get the prefix for this hash
+		$prefix = $this->prefix($hash);
 
 		if ( ! isset($this->mechanisms[$prefix]))
 		{
@@ -192,6 +178,45 @@ class Bonafide_Auth {
 
 		// Check the password using this password hash mechanism
 		return $this->mechanisms[$prefix]->check($password, $hash, $salt, $iterations);
+	}
+
+	/**
+	 * Get the mechanism prefix from a hash.
+	 *
+	 * @param   string  hashed password
+	 * @return  string
+	 */
+	public function prefix($hash)
+	{
+		// Get a list of all the registered prefixes
+		$prefixes = array_keys($this->mechanisms);
+
+		// Quote all the prefixes to make them suitable for regex matching
+		$prefixes = array_map(array($this, '_quote'), $prefixes);
+
+		if (preg_match('/^(?:'.implode('|', $prefixes).')/uD', $hash, $matches))
+		{
+			// Get the prefix from the match
+			list($prefix) = $matches;
+		}
+		else
+		{
+			// This hash has no registered prefix
+			$prefix = NULL;
+		}
+
+		return $prefix;
+	}
+
+	/**
+	 * Applies preg_quote with a delimiter. Also, `array_map()` is stupid.
+	 *
+	 * @param   string  mechanism prefix
+	 * @return  string
+	 */
+	protected function _quote($prefix)
+	{
+		return preg_quote($prefix, '/');
 	}
 
 } // End Bonafide_Auth
