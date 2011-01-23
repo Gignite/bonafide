@@ -1,3 +1,9 @@
+# 0.3.0 (01/23/2011)
+
+- Fixed a bug that would prevent using "/" as a prefix
+- Added new method Bonafide::latest for checking if a hash is up to date
+- Abstracted prefix capturing to Bonafide::prefix
+
 # 0.2.0 (01/21/2011)
 
 - Added support for bcrypt (Wouterr)
