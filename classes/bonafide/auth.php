@@ -181,6 +181,19 @@ class Bonafide_Auth {
 	}
 
 	/**
+	 * Check if a password is using the latest hashing mechanism. This can be
+	 * used after a successful check to detemine if the password needs to be
+	 * hashed again using the newest mechanism.
+	 *
+	 * @param   string  hashed password
+	 * @return  boolean
+	 */
+	public function latest($hash)
+	{
+		return (key($this->mechanisms) === $this->prefix($hash));
+	}
+
+	/**
 	 * Get the mechanism prefix from a hash.
 	 *
 	 * @param   string  hashed password
