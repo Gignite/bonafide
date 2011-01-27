@@ -202,6 +202,51 @@ class Bonafide_ACL_Core {
 	}
 
 	/**
+	 * Add "allow" access to a role.
+	 *
+	 *     // Allow "guest" to "view" everything
+	 *     $acl->allow('guest', 'view');
+	 *
+	 *     // Allow "member" to "comment" on "news"
+	 *     $acl->allow('member', 'comment', 'news');
+	 *
+	 *     // Allow "admin" to do anything
+	 *     $acl->allow('admin');
+	 *
+	 * @param   string   role name
+	 * @param   mixed    single action or array of actions
+	 * @param   mixed    single resource or array of resources
+	 * @return  Bonafide_ACL
+	 */
+	public function allow($role, $action = NULL, $resource = NULL)
+	{
+		return $this->permission($role, $action, $resource, TRUE);
+	}
+
+	/**
+	 * Add "deny" access to a role.
+	 *
+	 *     // Deny "guest" to do anything with "latest"
+	 *     $acl->deny('guest', NULL, 'latest');
+	 *
+	 *     // Deny "member" to "edit" the "news"
+	 *     $acl->deny('member', 'edit', 'news');
+	 *
+	 * [!!] By default, everything in an access control list is denied. It is
+	 * not necessary to explicitly deny actions except when an inherited role
+	 * is allowed access.
+	 *
+	 * @param   string   role name
+	 * @param   mixed    single action or array of actions
+	 * @param   mixed    single resource or array of resources
+	 * @return  Bonafide_ACL
+	 */
+	public function deny($role, $action = NULL, $resource = NULL)
+	{
+		return $this->permission($role, $action, $resource, FALSE);
+	}
+
+	/**
 	 * Add a permission for a role, setting the actions, resources, and
 	 * access type (allow, deny).
 	 *
@@ -257,51 +302,6 @@ class Bonafide_ACL_Core {
 		}
 
 		return $this;
-	}
-
-	/**
-	 * Add "allow" access to a role.
-	 *
-	 *     // Allow "guest" to "view" everything
-	 *     $acl->allow('guest', 'view');
-	 *
-	 *     // Allow "member" to "comment" on "news"
-	 *     $acl->allow('member', 'comment', 'news');
-	 *
-	 *     // Allow "admin" to do anything
-	 *     $acl->allow('admin');
-	 *
-	 * @param   string   role name
-	 * @param   mixed    single action or array of actions
-	 * @param   mixed    single resource or array of resources
-	 * @return  Bonafide_ACL
-	 */
-	public function allow($role, $action = NULL, $resource = NULL)
-	{
-		return $this->permission($role, $action, $resource, TRUE);
-	}
-
-	/**
-	 * Add "deny" access to a role.
-	 *
-	 *     // Deny "guest" to do anything with "latest"
-	 *     $acl->deny('guest', NULL, 'latest');
-	 *
-	 *     // Deny "member" to "edit" the "news"
-	 *     $acl->deny('member', 'edit', 'news');
-	 *
-	 * [!!] By default, everything in an access control list is denied. It is
-	 * not necessary to explicitly deny actions except when an inherited role
-	 * is allowed access.
-	 *
-	 * @param   string   role name
-	 * @param   mixed    single action or array of actions
-	 * @param   mixed    single resource or array of resources
-	 * @return  Bonafide_ACL
-	 */
-	public function deny($role, $action = NULL, $resource = NULL)
-	{
-		return $this->permission($role, $action, $resource, FALSE);
 	}
 
 	/**
