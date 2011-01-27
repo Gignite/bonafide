@@ -7,7 +7,7 @@
  * bcrypt is highly recommended by many to safely store passwords. For more
  * information, see http://codahale.com/how-to-safely-store-a-password/
  *
- * @package    Bona Fide
+ * @package    Bonafide
  * @category   Mechanisms
  * @author     Wouter <wouter.w@gmx.net>
  * @author     Woody Gilk <woody.gilk@kohanaframework.org>

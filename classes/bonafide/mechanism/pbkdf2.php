@@ -2,7 +2,7 @@
 /**
  * PBKDF2 derived key mechanism for Bona Fide
  *
- * @package    Bona Fide
+ * @package    Bonafide
  * @category   Mechanisms
  * @author     Isaiah DeRose-Wilson <isaiah.derosewilson@kohanaframework.org>
  * @copyright  (c) 2011 Isaiah DeRose-Wilson

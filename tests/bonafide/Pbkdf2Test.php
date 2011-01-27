@@ -5,7 +5,7 @@
  *
  * @group kohana
  *
- * @package    Bona Fide
+ * @package    Bonafide
  * @category   Base
  * @license    MIT
  */

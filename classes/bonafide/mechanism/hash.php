@@ -4,7 +4,7 @@
  *
  * This mechanism provides support for HMAC password hashing.
  *
- * @package    Bona Fide
+ * @package    Bonafide
  * @category   Mechanisms
  * @author     Woody Gilk <woody.gilk@kohanaframework.org>
  * @copyright  (c) 2011 Woody Gilk
