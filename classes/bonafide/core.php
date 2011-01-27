@@ -94,9 +94,11 @@ class Bonafide_Core {
 	 */
 	public function __construct(array $config = array())
 	{
-		$this->config = $config + array(
-			'separator' => '~',
-		);
+		if ($config)
+		{
+			// Overload config
+			$this->config = $config;
+		}
 
 		if (isset($this->config['mechanisms']))
 		{
