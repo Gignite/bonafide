@@ -8,7 +8,7 @@
  * @copyright  (c) 2011 Woody Gilk
  * @license    MIT
  */
-class Bonafide_Auth {
+class Bonafide_Core {
 
 	/**
 	 * @param  string  default instance name

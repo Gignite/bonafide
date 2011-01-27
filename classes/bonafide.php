@@ -8,4 +8,4 @@
  * @copyright  (c) 2011 Woody Gilk
  * @license    MIT
  */
-class Bonafide extends Bonafide_Auth { }
+class Bonafide extends Bonafide_Core { }
