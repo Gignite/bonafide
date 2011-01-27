@@ -14,7 +14,9 @@ class Bonafide_ACL_Core {
 	const WILDCARD = '*';
 
 	/**
-	 * Create a new access control list.
+	 * Create an access control list.
+	 *
+	 *     $acl = Bonafide_ACL::factory($config);
 	 *
 	 * @param   array  configuration
 	 * @return  Bonafide_ACL
@@ -47,6 +49,8 @@ class Bonafide_ACL_Core {
 	/**
 	 * Load configuration parameters.
 	 *
+	 *     $acl = new Bonafide_ACL($config);
+	 *
 	 * @param  array  configuration
 	 */
 	public function __construct(array $config = NULL)
@@ -59,6 +63,15 @@ class Bonafide_ACL_Core {
 
 	/**
 	 * Add a new role and set the parent role(s).
+	 *
+	 *     // Add a "guest" role
+	 *     $acl->role('guest');
+	 *
+	 *     // Add a "member" role that inherits from "guest"
+	 *     $acl->role('member', 'guest');
+	 *
+	 *     // Add a "admin" role
+	 *     $acl->role('admin');
 	 *
 	 * @param   string  role name
 	 * @param   string  inherited parent role or array of roles
@@ -92,6 +105,12 @@ class Bonafide_ACL_Core {
 	/**
 	 * Get all inherited roles for a single role.
 	 *
+	 *     // Get all roles for "guest" (guest)
+	 *     $roles = $acl->roles('guest');
+	 *
+	 *     // Get all roles for "member" (member, guest)
+	 *     $roles = $acl->roles('member');
+	 *
 	 * @param   string  role name
 	 * @return  array
 	 */
@@ -114,6 +133,15 @@ class Bonafide_ACL_Core {
 
 	/**
 	 * Add a new resource and set the parent resource(s).
+	 *
+	 *     // Add a "users" resource
+	 *     $acl->resource('users');
+	 *
+	 *     // Add a "news" resource
+	 *     $acl->resource('news');
+	 *
+	 *     // Add a "latest" resource with inherits from "news"
+	 *     $acl->resource('latest', 'news');
 	 *
 	 * @param   string  resource name
 	 * @param   string  inherited parent resource or array of resources
@@ -147,6 +175,12 @@ class Bonafide_ACL_Core {
 	/**
 	 * Get all inherited resources for a single resource.
 	 *
+	 *     // Get all resources for "users" (users)
+	 *     $resources = $acl->resources('users')
+	 *
+	 *     // Get all resources for "latest" (latest, news)
+	 *     $resources = $acl->resources('latest');
+	 *
 	 * @param   string  resource name
 	 * @return  array
 	 */
@@ -170,6 +204,12 @@ class Bonafide_ACL_Core {
 	/**
 	 * Add a permission for a role, setting the actions, resources, and
 	 * access type (allow, deny).
+	 *
+	 *     // Allow "admin" to access everything
+	 *     $acl->permission('admin', NULL, NULL, TRUE);
+	 *
+	 * [!!] It is not recommended to use this method directly. Instead, use
+	 * the [Bonafide_ACL::allow] and [Bonafide_ACL::deny] methods.
 	 *
 	 * @param   string   role name
 	 * @param   mixed    single action or array of actions
@@ -222,6 +262,15 @@ class Bonafide_ACL_Core {
 	/**
 	 * Add "allow" access to a role.
 	 *
+	 *     // Allow "guest" to "view" everything
+	 *     $acl->allow('guest', 'view');
+	 *
+	 *     // Allow "member" to "comment" on "news"
+	 *     $acl->allow('member', 'comment', 'news');
+	 *
+	 *     // Allow "admin" to do anything
+	 *     $acl->allow('admin');
+	 *
 	 * @param   string   role name
 	 * @param   mixed    single action or array of actions
 	 * @param   mixed    single resource or array of resources
@@ -234,6 +283,16 @@ class Bonafide_ACL_Core {
 
 	/**
 	 * Add "deny" access to a role.
+	 *
+	 *     // Deny "guest" to do anything with "latest"
+	 *     $acl->deny('guest', NULL, 'latest');
+	 *
+	 *     // Deny "member" to "edit" the "news"
+	 *     $acl->deny('member', 'edit', 'news');
+	 *
+	 * [!!] By default, everything in an access control list is denied. It is
+	 * not necessary to explicitly deny actions except when an inherited role
+	 * is allowed access.
 	 *
 	 * @param   string   role name
 	 * @param   mixed    single action or array of actions
@@ -248,6 +307,18 @@ class Bonafide_ACL_Core {
 	/**
 	 * Check if a role is allowed is allowed to perform an action on a resource.
 	 * Recursively checks all inherited roles and resources.
+	 *
+	 *     // Is "guest" allowed to "commment" the "news"?
+	 *     $acl->allowed('guest', 'commment', 'news'); // FALSE
+	 *
+	 *     // Is "member" allowed to "commment" the "news"?
+	 *     $acl->allowed('member', 'commment', 'news'); // TRUE
+	 *
+	 *     // Is "member" allowed to "edit" the "latest"?
+	 *     $acl->allowed('member', 'edit', 'latest'); // FALSE
+	 *
+	 *     // Is "admin" allowed to "edit" the "news"?
+	 *     $acl->allowed('admin', 'edit', 'news'); // TRUE
 	 *
 	 * @param   string   role name
 	 * @param   string   action type
@@ -295,6 +366,12 @@ class Bonafide_ACL_Core {
 	/**
 	 * Check if a role is allowed is denied to perform an action on a resource.
 	 * Recursively checks all inherited roles and resources.
+	 *
+	 *     // Is "admin" denied to "view" the "latest"?
+	 *     $acl->denied('admin', 'view', 'news'); // FALSE
+	 * 
+	 *     // Is "guest" denied to "view" the "latest"?
+	 *     $acl->denied('guest', 'view', 'latest'); // TRUE
 	 *
 	 * @param   string   role name
 	 * @param   string   action type
