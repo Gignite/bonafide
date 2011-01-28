@@ -17,6 +17,9 @@
  */
 class Bonafide_Mechanism_Bcrypt extends Bonafide_Mechanism {
 
+	// Allowed salt characters
+	const SALT = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
 	/**
 	 * @param  integer  number between 4 and 31, base-2 logarithm of the iteration count
 	 */
@@ -37,14 +40,20 @@ class Bonafide_Mechanism_Bcrypt extends Bonafide_Mechanism {
 		if ( ! $salt)
 		{
 			// Generate a random 22 character salt
-			$salt = Text::random('alnum', 22);
-
-			// Apply 0 padding to the cost, normalize to a range of 4-31
-			$cost = sprintf('%02d', min(31, max($this->cost, 4)));
-
-			// Create a salt suitable for bcrypt
-			$salt = '$2a$'.$cost.'$'.$salt.'$';
+			$salt = Text::random(self::SALT, 22);
 		}
+
+		if ( ! $iterations)
+		{
+			// Use the default cost
+			$iterations = $this->cost;
+		}
+
+		// Apply 0 padding to the iterations, normalize to a range of 4-31
+		$iterations = sprintf('%02d', min(31, max($iterations, 4)));
+
+		// Create a salt suitable for bcrypt
+		$salt = '$2a$'.$iterations.'$'.$salt.'$';
 
 		return $this->_hash($password, $salt);
 	}
@@ -57,7 +66,10 @@ class Bonafide_Mechanism_Bcrypt extends Bonafide_Mechanism {
 	public function check($password, $hash, $salt = NULL, $iterations = NULL)
 	{
 		// $2a$ (4) 00 (2) $ (1) <salt> (22)
-		$salt = substr($hash, 0, 4 + 2 + 1 + 22);
+		preg_match('/^\$2a\$(\d{2})\$(.{22})/D', $hash, $matches);
+
+		// Extract the iterations and salt from the hash
+		list($_, $iterations, $salt) = $matches;
 
 		return parent::check($password, $hash, $salt, $iterations);
 	}
