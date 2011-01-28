@@ -6,10 +6,10 @@
  * @group kohana
  *
  * @package    Bonafide
- * @category   Base
+ * @category   Tests
  * @license    MIT
  */
-Class Bonafide_Pbkdf2Test extends Unittest_TestCase
+Class Bonafide_Pbkdf2Test extends Kohana_Unittest_TestCase
 {
 	/**
 	 * These tests all use sha1. See RFC6070 for details on these tests.
