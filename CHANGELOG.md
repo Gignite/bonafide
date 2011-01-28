@@ -1,3 +1,10 @@
+# 0.4.0 (01/27/2011)
+
+- Modified bcrypt mechanism to allow setting per-user salt and iteration (issue #4)
+- Modified bcrypt to generate salts using the full range of possible characters
+- Improved unit test coverage
+- Added Bonafide_ACL class for creating access control lists
+
 # 0.3.0 (01/23/2011)
 
 - Fixed a bug that would prevent using "/" as a prefix
