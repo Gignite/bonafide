@@ -10,26 +10,46 @@
  */
 class Bonafide_ACL_Core {
 
-	// Wildcard for all types
+	/**
+	 * @var  string  name for "any" entity
+	 */
 	const WILDCARD = '*';
 
 	/**
-	 * Create an access control list.
-	 *
-	 *     $acl = Bonafide_ACL::factory($config);
-	 *
-	 * @param   array  configuration
-	 * @return  Bonafide_ACL
+	 * @var  string  default instance name
 	 */
-	public static function factory(array $config = NULL)
-	{
-		return new Bonafide_ACL($config);
-	}
+	public static $default = 'default';
 
 	/**
-	 * @var  string  instance name
+	 * @var  array  ACL instances, by name
 	 */
-	public $name;
+	public static $instances = array();
+
+	/**
+	 * Create an access control list instance.
+	 *
+	 *     $acl = Bonafide_ACL::instance($name, $config);
+	 *
+	 * @param   string  instance name
+	 * @param   array   configuration
+	 * @return  Bonafide_ACL
+	 */
+	public static function instance($name = NULL, array $config = NULL)
+	{
+		if ( ! $name)
+		{
+			// Use the default instance name
+			$name = static::$default;
+		}
+
+		if ( ! isset(static::$instances[$name]))
+		{
+			// Register the instance
+			static::$instances[$name] = new Bonafide_ACL($config);
+		}
+
+		return static::$instances[$name];
+	}
 
 	/**
 	 * @var  array  ACL roles
@@ -55,14 +75,11 @@ class Bonafide_ACL_Core {
 	 */
 	public function __construct(array $config = NULL)
 	{
-		if (isset($config['name']))
-		{
-			$this->name = (string) $config['name'];
-		}
+		// Nothing, yet
 	}
 
 	/**
-	 * Add a new role and set the parent role(s).
+	 * Add a new role, optionally copying permissions from other roles.
 	 *
 	 *     // Add a "guest" role
 	 *     $acl->role('guest');
@@ -74,65 +91,37 @@ class Bonafide_ACL_Core {
 	 *     $acl->role('admin');
 	 *
 	 * @param   string  role name
-	 * @param   string  inherited parent role or array of roles
+	 * @param   mixed   copied role name or array of roles
 	 * @return  Bonafide_ACL
 	 */
 	public function role($name, $parents = NULL)
 	{
-		if ( ! is_array($parents))
-		{
-			if ($parents === NULL)
-			{
-				$parents = array();
-			}
-			else
-			{
-				$parents = array($parents);
-			}
-		}
+		// Add this role
+		$this->_roles[$name] = $name;
+
+		// Initialize permissions array
+		$this->_permissions[$name] = array();
 
 		if ($parents)
 		{
-			// Create a mirrored array
-			$parents = array_combine($parents, $parents);
-		}
+			if ( ! is_array($parents))
+			{
+				// Force parents to be an array
+				$parents = array($parents);
+			}
 
-		$this->_roles[$name] = $parents;
+			foreach ($parents as $parent)
+			{
+				// Copy parent permissions to this role
+				$this->_permissions[$name] = array_merge($this->_permissions[$name], $this->_permissions[$parent]);
+			}
+		}
 
 		return $this;
 	}
 
 	/**
-	 * Get all inherited roles for a single role.
-	 *
-	 *     // Get all roles for "guest" (guest)
-	 *     $roles = $acl->roles('guest');
-	 *
-	 *     // Get all roles for "member" (member, guest)
-	 *     $roles = $acl->roles('member');
-	 *
-	 * @param   string  role name
-	 * @return  array
-	 */
-	public function roles($name)
-	{
-		// Add this role to the set
-		$roles = array($name => $name);
-
-		if (isset($this->_roles[$name]))
-		{
-			foreach ($this->_roles[$name] as $role)
-			{
-				// Inherit parents
-				$roles = array_merge($roles, $this->roles($role));
-			}
-		}
-
-		return $roles;
-	}
-
-	/**
-	 * Add a new resource and set the parent resource(s).
+	 * Add a new resource, optionally copying permissions from other resources.
 	 *
 	 *     // Add a "users" resource
 	 *     $acl->resource('users');
@@ -144,61 +133,156 @@ class Bonafide_ACL_Core {
 	 *     $acl->resource('latest', 'news');
 	 *
 	 * @param   string  resource name
-	 * @param   string  inherited parent resource or array of resources
+	 * @param   mixed   single action or array of actions
 	 * @return  Bonafide_ACL
 	 */
-	public function resource($name, $parents = NULL)
+	public function resource($name, $actions)
 	{
-		if ( ! is_array($parents))
+		if ( ! $name OR ! $actions)
 		{
-			if ( ! $parents)
-			{
-				$parents = array();
-			}
-			else
-			{
-				$parents = array($parents);
-			}
+			throw new Bonafide_Exception('All resources must have a name and at least one action');
 		}
 
-		if ($parents)
+		if ($actions)
 		{
-			// Make the parents a mirrored array
-			$parents = array_combine($parents, $parents);
+			if ( ! is_array($actions))
+			{
+				// Only one action, make it an array
+				$actions = array($actions);
+			}
+
+			// Mirror the array keys and values
+			$actions = array_combine($actions, $actions);
+		}
+		else
+		{
+			// No actions defined
+			$actions = array();
 		}
 
-		$this->_resources[$name] = $parents;
+		// Sort alphabetically
+		ksort($actions, SORT_LOCALE_STRING);
+
+		// Create the resource
+		$this->_resources[$name] = $actions;
 
 		return $this;
 	}
 
 	/**
-	 * Get all inherited resources for a single resource.
+	 * Get an associative array of all roles.
 	 *
-	 *     // Get all resources for "users" (users)
-	 *     $resources = $acl->resources('users')
+	 *     // Get all defined roles
+	 *     $roles = $acl->roles();
 	 *
-	 *     // Get all resources for "latest" (latest, news)
-	 *     $resources = $acl->resources('latest');
+	 * [!!] Unlike actions and resources, roles are not sorted!
 	 *
-	 * @param   string  resource name
 	 * @return  array
 	 */
-	public function resources($name)
+	public function roles()
 	{
-		// Add this resource to the set
-		$resources = array($name => $name);
+		// Get all defined roles
+		$roles = array_keys($this->_roles);
 
-		if (isset($this->_resources[$name]))
+		// Create a mirrored array
+		$roles = array_combine($roles, $roles);
+
+		return $roles;
+	}
+
+	/**
+	 * Get a sorted associative array of all actions for a set of resources.
+	 *
+	 *     // Get all possible actions for "news"
+	 *     $actions = $acl->actions('news');
+	 *
+	 *     // Get all possible actions for all resources
+	 *     $actions = $acl->actions();
+	 *
+	 * @param   mixed    single resource or array of resources
+	 * @return  array
+	 */
+	public function actions($resources = NULL)
+	{
+		if ($resources)
 		{
-			foreach ($this->_resources[$name] as $resource)
+			if ( ! is_array($resources))
 			{
-				// Inherit parents
-				$resources = array_merge($resources, $this->resources($resource));
+				// Resources must always be an array
+				$resources = array($resources);
+			}
+		}
+		else
+		{
+			// Use all resources
+			$resources = $this->resources();
+		}
+
+		$actions = array();
+
+		foreach ($resources as $resource)
+		{
+			if (isset($this->_resources[$resource]))
+			{
+				$actions += $this->_resources[$resource];
 			}
 		}
 
+		ksort($actions, SORT_LOCALE_STRING);
+
+		return $actions;
+	}
+
+	/**
+	 * Get a sorted associative array of all resources.
+	 *
+	 *     // Get all defined resources
+	 *     $resources = $acl->resources();
+	 *
+	 * @return  array
+	 */
+	public function resources()
+	{
+		// Get all defined resources
+		$resources = array_keys($this->_resources);
+
+		// Create a mirrored array
+		$resources = array_combine($resources, $resources);
+
+		// Sort alphabetically
+		ksort($resources, SORT_LOCALE_STRING);
+
 		return $resources;
+	}
+
+	/**
+	 * Check if an action can be performed on a resource.
+	 *
+	 *     // Does "news" have an "edit" action?
+	 *     if ($acl->can('edit', 'news')) {}
+	 *
+	 *     // Does "article" have a "comment" action?
+	 *     if ($acl->can('comment', 'article')) {}
+	 *
+	 * @param   string   action name
+	 * @param   string   resource name
+	 * @return  boolean
+	 */
+	public function can($action, $resource)
+	{
+		if ($action === static::WILDCARD OR $resource === static::WILDCARD)
+		{
+			// Anything is possible.
+			return TRUE;
+		}
+
+		if ($actions = $this->actions($resource))
+		{
+			// Does the action exist?
+			return isset($actions[$action]);
+		}
+
+		return FALSE;
 	}
 
 	/**
@@ -256,48 +340,45 @@ class Bonafide_ACL_Core {
 	 * [!!] It is not recommended to use this method directly. Instead, use
 	 * the [Bonafide_ACL::allow] and [Bonafide_ACL::deny] methods.
 	 *
-	 * @param   string   role name
+	 * @param   mixed    single role or array of roles
 	 * @param   mixed    single action or array of actions
 	 * @param   mixed    single resource or array of resources
 	 * @param   boolean  is the role allowed access?
 	 * @return  Bonafide_ACL
 	 */
-	public function permission($role, $actions, $resources, $access)
+	public function permission($roles, $actions, $resources, $access)
 	{
-		if ( ! $role)
-		{
-			$role = Bonafide_ACL::WILDCARD;
-		}
+		$entities = array('roles', 'actions', 'resources');
 
-		if ( ! is_array($actions))
+		foreach ($entities as $entity)
 		{
-			if ( ! $actions)
+			if ($$entity)
 			{
-				$actions = array(Bonafide_ACL::WILDCARD);
+				if ( ! is_array($$entity))
+				{
+					// Make the entity into an array
+					$$entity = array($$entity);
+				}
 			}
 			else
 			{
-				$actions = array($actions);
+				// Modify "any" entity.
+				$$entity = array(static::WILDCARD);
 			}
 		}
 
-		if ( ! is_array($resources))
+		foreach ($roles as $role)
 		{
-			if ( ! $resources)
+			foreach ($actions as $action)
 			{
-				$resources = array(Bonafide_ACL::WILDCARD);
-			}
-			else
-			{
-				$resources = array($resources);
-			}
-		}
-
-		foreach ($actions as $action)
-		{
-			foreach ($resources as $resource)
-			{
-				$this->_permissions[$role][$action][$resource] = (bool) $access;
+				foreach ($resources as $resource)
+				{
+					if ($this->can($action, $resource))
+					{
+						// Set this roles ability to perform this action on this resource
+						$this->_permissions[$role][$action][$resource] = (bool) $access;
+					}
+				}
 			}
 		}
 
@@ -325,25 +406,27 @@ class Bonafide_ACL_Core {
 	 * @param   string   resource name
 	 * @return  boolean
 	 */
-	public function allowed($role, $action = NULL, $resource = NULL)
+	public function allowed($role, $action, $resource)
 	{
-		// Start searching with wildcards
-		$roles = $actions = $resources = array(Bonafide_ACL::WILDCARD => Bonafide_ACL::WILDCARD);
+		// Search wildcards
+		$roles = $actions = $resources = array(static::WILDCARD);
 
-		// All all inherited roles for this role
-		$roles += $this->roles($role);
+		// A specific role or any role
+		array_push($roles, $role);
 
 		if ($action)
 		{
-			// Search specific actions
-			$actions += array($action => $action);
+			// Do a specific action
+			array_push($actions, $action);
 		}
 
 		if ($resource)
 		{
-			// Search specific resources
-			$resources += $this->resources($resource);
+			// On a specific resource or any resource
+			array_push($resources, $resource);
 		}
+
+		$allow = FALSE;
 
 		foreach ($roles as $role)
 		{
@@ -353,14 +436,14 @@ class Bonafide_ACL_Core {
 				{
 					if (isset($this->_permissions[$role][$action][$resource]))
 					{
-						// Check the entire matrix, starting with the wildcard
-						return ($this->_permissions[$role][$action][$resource] === TRUE);
+						// Can this role perform this action on this resource?
+						$allow = $this->_permissions[$role][$action][$resource];
 					}
 				}
 			}
 		}
 
-		return FALSE;
+		return $allow;
 	}
 
 	/**
@@ -369,7 +452,7 @@ class Bonafide_ACL_Core {
 	 *
 	 *     // Is "admin" denied to "view" the "latest"?
 	 *     $acl->denied('admin', 'view', 'news'); // FALSE
-	 * 
+	 *
 	 *     // Is "guest" denied to "view" the "latest"?
 	 *     $acl->denied('guest', 'view', 'latest'); // TRUE
 	 *
@@ -381,6 +464,59 @@ class Bonafide_ACL_Core {
 	public function denied($role, $action = NULL, $resource = NULL)
 	{
 		return ! $this->allowed($role, $action, $resource);
+	}
+
+	/**
+	 * Get a complete matrix of possible actions and resources.
+	 *
+	 * An ACL matrix is visually described as:
+	 *
+	 *              action  action  action  action
+	 *     resource   x       x       x       x
+	 *     resource                           x
+	 *     resource   x               x       x
+	 *     resource           x       x       x
+	 *
+	 * All possible actions are listed across the top, and all resources are
+	 * listed down the side. Any action that is possible on the resource is
+	 * marked with an "x" and an empty space represents an action that does not
+	 * exist for the resource.
+	 *
+	 * This matrix can be checked against a role to display allowed actions:
+	 *
+	 *      (role)  action  action  action  action
+	 *     resource   x       o       o       x
+	 *     resource                           x
+	 *     resource   o               x       x
+	 *     resource           o       o       x
+	 *
+	 * In this matrix, allowed actions are represented by an "x" and denied
+	 * actions are represented by an "o" and empty space represents an action
+	 * that does not exist for the resource.
+	 *
+	 * @return   array
+	 */
+	public function matrix()
+	{
+		// Get all actions
+		$actions = $this->actions();
+
+		// Get all resources
+		$resources = $this->resources();
+
+		// Start the matrix
+		$matrix = array();
+
+		foreach ($actions as $action)
+		{
+			foreach ($resources as $resource)
+			{
+				// Is it possible to perform "action" on "resource"?
+				$matrix[$resource][$action] = $this->can($action, $resource);
+			}
+		}
+
+		return $matrix;
 	}
 
 } // End Bonafide_ACL
