@@ -78,6 +78,18 @@ class Bonafide_Core {
 	}
 
 	/**
+	 * Get a instance of ACL.
+	 *
+	 * @param   string  list name
+	 * @param   array   configuration settings
+	 * @return  Bonafide_ACL
+	 */
+	public static function acl($name = NULL, array $config = NULL)
+	{
+		return Bonafide_ACL::instance($name, $config);
+	}
+
+	/**
 	 * @param  array  configuration settings
 	 */
 	public $config = array();
