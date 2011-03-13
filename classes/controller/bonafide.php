@@ -52,7 +52,7 @@ class Controller_Bonafide extends Controller {
 			->bind('allowed', $allowed)
 			;
 
-		if (Request::$method === 'POST')
+		if ($this->request->method() === Request::POST)
 		{
 			// Get role, action, and resource from POST data
 			list($role, $action, $resource) = array_values(Arr::extract($_POST, array('role', 'action', 'resource')));
@@ -76,7 +76,7 @@ class Controller_Bonafide extends Controller {
 	{
 		if ($this->view)
 		{
-			$this->request->response = $this->view->render();
+			$this->response->body($this->view);
 		}
 
 		return parent::after();

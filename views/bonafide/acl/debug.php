@@ -2,7 +2,7 @@
 
 <p>Something seem off? Check the <?php echo HTML::anchor(Route::url('bonafide', array('action' => 'matrix')), 'full matrix') ?>.</p>
 
-<?php echo Form::open() ?>
+<?php echo Form::open(Request::current()) ?>
 <p>
 	Is <?php echo Form::select('role', Arr::unshift($roles, '', '-- any'), $role) ?>
 	allowed to <?php echo Form::select('action', Arr::unshift($actions, '', '-- any'), $action) ?>
