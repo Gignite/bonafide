@@ -11,6 +11,11 @@
 class Bonafide_Core {
 
 	/**
+	 * @var  string  current version
+	 */
+	const VERSION = '0.5.0';
+
+	/**
 	 * @param  string  default instance name
 	 */
 	public static $default = 'default';
