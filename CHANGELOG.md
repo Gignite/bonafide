@@ -1,3 +1,13 @@
+# 0.5.0 (03/13/2011)
+
+- Complete refactor of ACL class
+    - Roles are now copied, rather than inherited
+    - Permissions are now checked from less to more specific, and all permissions are checked before return
+    - Actions are now grouped by resource and must be defined when creating the resource
+    - Added new `matrix()` method, returns the entire resource/action matrix
+    - Added new `can()` method, checks if an action can be performed on a resource
+    - Many methods now have different signatures
+
 # 0.4.0 (01/27/2011)
 
 - Modified bcrypt mechanism to allow setting per-user salt and iteration (issue #4)
