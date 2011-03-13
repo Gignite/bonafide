@@ -46,10 +46,18 @@ class Bonafide_ACL_Core {
 		{
 			// Register the instance
 			static::$instances[$name] = new Bonafide_ACL($config);
+
+			// Forcibly set the instance name
+			static::$instances[$name]->_instance = $name;
 		}
 
 		return static::$instances[$name];
 	}
+
+	/**
+	 * @var  string  instance name for this list
+	 */
+	protected $_instance = '';
 
 	/**
 	 * @var  array  ACL roles
@@ -71,11 +79,28 @@ class Bonafide_ACL_Core {
 	 *
 	 *     $acl = new Bonafide_ACL($config);
 	 *
-	 * @param  array  configuration
+	 * @param   array  configuration
+	 * @return  void
 	 */
 	public function __construct(array $config = NULL)
 	{
 		// Nothing, yet
+	}
+
+	/**
+	 * Add this object back to global instances when unserialized.
+	 *
+	 *     unserialize($acl);
+	 *
+	 * @return  void
+	 */
+	public function __wakeup()
+	{
+		if ($this->_instance)
+		{
+			// This object is used as an instance
+			Bonafide_ACL::$instances[$this->_instance] = $this;
+		}
 	}
 
 	/**
