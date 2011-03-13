@@ -1,3 +1,8 @@
+# 0.5.1 (03/13/2011)
+
+- Added `__wakeup` method to Bonafide and Bonafide_ACL, restores instances when unserialized
+- Remove references to `static::` in Bonafide_ACL for PHP 5.2 compatibility
+
 # 0.5.0 (03/13/2011)
 
 - Complete refactor of ACL class
