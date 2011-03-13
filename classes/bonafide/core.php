@@ -13,7 +13,7 @@ class Bonafide_Core {
 	/**
 	 * @var  string  current version
 	 */
-	const VERSION = '0.5.0';
+	const VERSION = '0.5.1';
 
 	/**
 	 * @param  string  default instance name
@@ -53,6 +53,9 @@ class Bonafide_Core {
 
 			// Register the instance
 			Bonafide::$instances[$name] = new Bonafide($configuration);
+
+			// Forcibly set the instance name
+			Bonafide::$instances[$name]->_instance = $name;
 		}
 
 		return Bonafide::$instances[$name];
@@ -93,6 +96,11 @@ class Bonafide_Core {
 	{
 		return Bonafide_ACL::instance($name, $config);
 	}
+
+	/**
+	 * @var  string  instance name for this list
+	 */
+	protected $_instance = '';
 
 	/**
 	 * @param  array  configuration settings
@@ -153,6 +161,22 @@ class Bonafide_Core {
 				// Register the mechanism by its prefix
 				$this->mechanisms[$prefix] = $mechanism;
 			}
+		}
+	}
+
+	/**
+	 * Add this object back to global instances when unserialized.
+	 *
+	 *     unserialize($bonafide);
+	 *
+	 * @return  void
+	 */
+	public function __wakeup()
+	{
+		if ($this->_instance)
+		{
+			// This object is used as an instance
+			Bonafide::$instances[$this->_instance] = $this;
 		}
 	}
 
