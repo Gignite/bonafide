@@ -39,19 +39,19 @@ class Bonafide_ACL_Core {
 		if ( ! $name)
 		{
 			// Use the default instance name
-			$name = static::$default;
+			$name = Bonafide_ACL::$default;
 		}
 
-		if ( ! isset(static::$instances[$name]))
+		if ( ! isset(Bonafide_ACL::$instances[$name]))
 		{
 			// Register the instance
-			static::$instances[$name] = new Bonafide_ACL($config);
+			Bonafide_ACL::$instances[$name] = new Bonafide_ACL($config);
 
 			// Forcibly set the instance name
-			static::$instances[$name]->_instance = $name;
+			Bonafide_ACL::$instances[$name]->_instance = $name;
 		}
 
-		return static::$instances[$name];
+		return Bonafide_ACL::$instances[$name];
 	}
 
 	/**
@@ -295,7 +295,7 @@ class Bonafide_ACL_Core {
 	 */
 	public function can($action, $resource)
 	{
-		if ($action === static::WILDCARD OR $resource === static::WILDCARD)
+		if ($action === Bonafide_ACL::WILDCARD OR $resource === Bonafide_ACL::WILDCARD)
 		{
 			// Anything is possible.
 			return TRUE;
@@ -388,7 +388,7 @@ class Bonafide_ACL_Core {
 			else
 			{
 				// Modify "any" entity.
-				$$entity = array(static::WILDCARD);
+				$$entity = array(Bonafide_ACL::WILDCARD);
 			}
 		}
 
@@ -434,7 +434,7 @@ class Bonafide_ACL_Core {
 	public function allowed($role, $action, $resource)
 	{
 		// Search wildcards
-		$roles = $actions = $resources = array(static::WILDCARD);
+		$roles = $actions = $resources = array(Bonafide_ACL::WILDCARD);
 
 		// A specific role or any role
 		array_push($roles, $role);
