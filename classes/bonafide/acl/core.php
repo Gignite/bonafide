@@ -521,13 +521,24 @@ class Bonafide_ACL_Core {
 	 *
 	 * @return   array
 	 */
-	public function matrix()
+	public function matrix($resources = NULL)
 	{
-		// Get all actions
-		$actions = $this->actions();
+		if ($resources)
+		{
+			if ( ! is_array($resources))
+			{
+				// Resources must always be an array
+				$resources = array($resources);
+			}
+		}
+		else
+		{
+			// Use all resources
+			$resources = $this->resources();
+		}
 
-		// Get all resources
-		$resources = $this->resources();
+		// Get all actions for these resources
+		$actions = $this->actions($resources);
 
 		// Start the matrix
 		$matrix = array();
