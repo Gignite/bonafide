@@ -8,4 +8,4 @@
  * @copyright  (c) 2011 Woody Gilk
  * @license    MIT
  */
-class Bonafide_ACL extends Bonafide_ACL_Core {  }
+class Bonafide_ACL extends Kohana_Bonafide_ACL {}

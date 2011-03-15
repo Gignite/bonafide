@@ -8,7 +8,7 @@
  * @copyright  (c) 2011 Woody Gilk
  * @license    MIT
  */
-class Bonafide_ACL_Core {
+abstract class Kohana_Bonafide_ACL {
 
 	/**
 	 * @var  string  name for "any" entity
