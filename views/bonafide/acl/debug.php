@@ -1,6 +1,6 @@
 <h1>ACL Debugger</h1>
 
-<p>Something seem off? Check the <?php echo HTML::anchor(Route::url('bonafide', array('action' => 'matrix')), 'full matrix') ?>.</p>
+<p>Something seem off? Check the <?php echo HTML::anchor($matrix, 'full matrix') ?>.</p>
 
 <?php echo Form::open(Request::current()) ?>
 <p>

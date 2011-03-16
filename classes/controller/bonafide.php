@@ -37,6 +37,7 @@ class Controller_Bonafide extends Controller {
 	public function action_index()
 	{
 		$this->view = View::factory('bonafide/acl/debug')
+			->set('matrix', $this->request->url(array('action' => 'matrix')))
 			// Add roles and selected role
 			->set('roles', $this->acl->roles())
 			->bind('role', $role)
@@ -68,7 +69,9 @@ class Controller_Bonafide extends Controller {
 	public function action_matrix()
 	{
 		$this->view = View::factory('bonafide/acl')
+			->set('debugger', $this->request->url(array('action' => FALSE)))
 			->bind('acl', $this->acl)
+			->set('resources', Arr::get($_GET, 'resources'))
 			;
 	}
 
