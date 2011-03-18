@@ -104,6 +104,18 @@ abstract class Kohana_Bonafide_ACL {
 	}
 
 	/**
+	 * Get the instance name of this access list.
+	 *
+	 *     $name = $acl->name();
+	 *
+	 * @return  string
+	 */
+	public function name()
+	{
+		return $this->_instance();
+	}
+
+	/**
 	 * Add a new role, optionally copying permissions from other roles.
 	 *
 	 *     // Add a "guest" role
