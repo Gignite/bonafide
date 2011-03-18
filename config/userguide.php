@@ -6,6 +6,9 @@ return array(
 			// Whether this modules userguide pages should be shown
 			'enabled' => TRUE,
 
+			// The index page name
+			'index' => 'home',
+
 			// The name that should show up on the userguide index page
 			'name' => 'Bonafide',
 
