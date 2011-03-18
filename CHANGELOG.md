@@ -1,3 +1,8 @@
+# 0.5.2 (03/18/2011)
+
+- Renamed `Bonafide_Core` to `Kohana_Bonafide` and `Bonafide_ACL_Core` to `Kohana_Bonafide_ACL`, following standard module class name conventions
+- Added `$resources` parameter to `Bonafide_ACL::matrix` and `Bonafide_ACL::actions`, allows getting a matrix for a specific set of resources
+
 # 0.5.1 (03/13/2011)
 
 - Added `__wakeup` method to Bonafide and Bonafide_ACL, restores instances when unserialized
