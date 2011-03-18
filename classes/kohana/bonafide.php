@@ -8,12 +8,12 @@
  * @copyright  (c) 2011 Woody Gilk
  * @license    MIT
  */
-class Bonafide_Core {
+abstract class Kohana_Bonafide {
 
 	/**
 	 * @var  string  current version
 	 */
-	const VERSION = '0.5.1';
+	const VERSION = '0.5.2';
 
 	/**
 	 * @param  string  default instance name
