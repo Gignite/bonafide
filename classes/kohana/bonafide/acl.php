@@ -16,6 +16,21 @@ abstract class Kohana_Bonafide_ACL {
 	const WILDCARD = '*';
 
 	/**
+	 * @var  string  name for "role" entity
+	 */
+	const ROLE = 'role';
+
+	/**
+	 * @var  string  name for "action" entity
+	 */
+	const ACTION = 'action';
+
+	/**
+	 * @var  string  name for "resource" entity
+	 */
+	const RESOURCE = 'resource';
+
+	/**
 	 * @var  string  default instance name
 	 */
 	public static $default = 'default';
@@ -320,6 +335,43 @@ abstract class Kohana_Bonafide_ACL {
 		}
 
 		return FALSE;
+	}
+
+	/**
+	 * Check if an entity exists.
+	 *
+	 *     // Check if a role called "admin" exists
+	 *     if ($acl->has(Bonafide_ACL::ROLE, 'admin')) { ... }
+	 *
+	 *     // Check if an action call "archive"
+	 *     if ($acl->has(Bonafide_ACL::ACTION, 'blah')) { ... }
+	 *
+	 * [!!] The entity constant (`Bonafide_ACL::ROLE`) or name (`'role'`) can
+	 * be used interchangably. Using constants will be slightly faster.
+	 *
+	 * @param   string  entity type
+	 * @param   string  entity name
+	 * @return  boolean
+	 */
+	public function has($entity, $name)
+	{
+		switch ($entity)
+		{
+			case Bonafide_ACL::ROLE:
+				$all = $this->roles();
+			break;
+			case Bonafide_ACL::ACTION:
+				$all = $this->actions();
+			break;
+			case Bonafide_ACL::RESOURCES:
+				$all = $this->resources();
+			break;
+			default:
+				throw new InvalidArgumentException('Unknown entity type: '.$type);
+			break;
+		}
+
+		return isset($all[$name]);
 	}
 
 	/**
