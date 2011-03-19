@@ -1,3 +1,8 @@
+# 0.5.3 (03/18/2011)
+
+- Added new constants `ROLE`, `ACTION`, and `RESOURCE` to `Bonafide_ACL`
+- Added new method `Bonafide_ACL::has($entity, $name)` for checking if a role, action, or resource already exists
+
 # 0.5.2 (03/18/2011)
 
 - Renamed `Bonafide_Core` to `Kohana_Bonafide` and `Bonafide_ACL_Core` to `Kohana_Bonafide_ACL`, following standard module class name conventions
