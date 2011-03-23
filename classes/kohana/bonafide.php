@@ -13,7 +13,7 @@ abstract class Kohana_Bonafide {
 	/**
 	 * @var  string  current version
 	 */
-	const VERSION = '0.5.3';
+	const VERSION = '0.5.3.1';
 
 	/**
 	 * @param  string  default instance name
