@@ -236,8 +236,11 @@ abstract class Kohana_Bonafide_ACL {
 		// Get all defined roles
 		$roles = array_keys($this->_roles);
 
-		// Create a mirrored array
-		$roles = array_combine($roles, $roles);
+		if ($roles)
+		{
+			// Create a mirrored array
+			$roles = array_combine($roles, $roles);
+		}
 
 		return $roles;
 	}
@@ -298,11 +301,14 @@ abstract class Kohana_Bonafide_ACL {
 		// Get all defined resources
 		$resources = array_keys($this->_resources);
 
-		// Create a mirrored array
-		$resources = array_combine($resources, $resources);
+		if ($resources)
+		{
+			// Create a mirrored array
+			$resources = array_combine($resources, $resources);
 
-		// Sort alphabetically
-		ksort($resources, SORT_LOCALE_STRING);
+			// Sort alphabetically
+			ksort($resources, SORT_LOCALE_STRING);
+		}
 
 		return $resources;
 	}

@@ -1,3 +1,7 @@
+# 0.5.3.1 (03/23/2011)
+
+- Fixed calls to `array_combine()` that were not checking for an empty array
+
 # 0.5.3 (03/18/2011)
 
 - Added new constants `ROLE`, `ACTION`, and `RESOURCE` to `Bonafide_ACL`
