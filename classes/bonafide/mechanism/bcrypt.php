@@ -27,7 +27,7 @@ class Bonafide_Mechanism_Bcrypt extends Bonafide_Mechanism {
 
 	public function __construct(array $config = NULL)
 	{
-		if ( ! defined('CRYPT_BLOWFISH'))
+		if ( ! defined('CRYPT_BLOWFISH') OR ! CRYPT_BLOWFISH)
 		{
 			throw new Bonafide_Exception('This server does not support bcrypt hashing');
 		}
