@@ -12,4 +12,4 @@
 </p>
 <?php echo Form::close() ?>
 
-<?php if (is_bool($allowed)) include Kohana::find_file('views/bonafide', 'acl/check') ?>
+<?php if (is_bool($allowed)) include Kohana::find_file('views/demo', 'bonafide/acl/check') ?>
