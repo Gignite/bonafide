@@ -18,5 +18,5 @@
 
 <?php foreach ($acl->roles() as $role): ?>
 <h2><?php echo HTML::chars($role) ?></h2>
-<?php include Kohana::find_file('views/bonafide', 'acl/matrix') ?>
+<?php include Kohana::find_file('views/demo', 'bonafide/acl/matrix') ?>
 <?php endforeach ?>

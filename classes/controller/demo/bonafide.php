@@ -1,6 +1,11 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 
-class Controller_Bonafide extends Controller {
+class Controller_Demo_Bonafide extends Controller_Demo {
+
+	/**
+	 * @var  object  access control list
+	 */
+	protected $acl;
 
 	public function before()
 	{
@@ -34,10 +39,10 @@ class Controller_Bonafide extends Controller {
 		return parent::before();
 	}
 
-	public function action_index()
+	public function demo_acl()
 	{
-		$this->view = View::factory('bonafide/acl/debug')
-			->set('matrix', $this->request->url(array('action' => 'matrix')))
+		$this->content = View::factory('demo/bonafide/acl/debug')
+			->set('matrix', $this->request->url(array('demo' => 'acl_matrix')))
 			// Add roles and selected role
 			->set('roles', $this->acl->roles())
 			->bind('role', $role)
@@ -66,23 +71,13 @@ class Controller_Bonafide extends Controller {
 		}
 	}
 
-	public function action_matrix()
+	public function demo_acl_matrix()
 	{
-		$this->view = View::factory('bonafide/acl')
+		$this->content = View::factory('demo/bonafide/acl')
 			->set('debugger', $this->request->url(array('action' => FALSE)))
 			->bind('acl', $this->acl)
 			->set('resources', Arr::get($_GET, 'resources'))
 			;
-	}
-
-	public function after()
-	{
-		if ($this->view)
-		{
-			$this->response->body($this->view);
-		}
-
-		return parent::after();
 	}
 
 } // End Bonafide
