@@ -71,7 +71,7 @@ abstract class Kohana_Bonafide {
 	public static function mechanism($name, array $config = NULL)
 	{
 		// Load configuration for this mechanism
-		$configuration = Kohana::$config->('bonafide/'.$name)->as_array();
+		$configuration = Kohana::$config->load('bonafide/'.$name)->as_array();
 
 		if ($config)
 		{
