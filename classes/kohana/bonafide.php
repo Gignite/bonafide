@@ -43,7 +43,7 @@ abstract class Kohana_Bonafide {
 		if ( ! isset(Bonafide::$instances[$name]))
 		{
 			// Load configuration
-			$configuration = Arr::get(Kohana::config('bonafide'), $name, array());
+			$configuration = Arr::get(Kohana::$config->load('bonafide'), $name, array());
 
 			if ($config)
 			{
@@ -71,7 +71,7 @@ abstract class Kohana_Bonafide {
 	public static function mechanism($name, array $config = NULL)
 	{
 		// Load configuration for this mechanism
-		$configuration = Kohana::config('bonafide/'.$name)->as_array();
+		$configuration = Kohana::$config->load('bonafide/'.$name)->as_array();
 
 		if ($config)
 		{
