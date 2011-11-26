@@ -11,13 +11,13 @@ return array(
 			// Put your mechanisms here! The format is:
 			// string $prefix => array(string $mechanism, array $config)
 
-			// // bcrypt hashing using Blowfish encryption
-			// 'bcrypt' => array('bcrypt', array(
-			// 	// number between 4 and 31, base-2 logarithm of the iteration count
-			// 	'cost' => 12
+			// // crypt hashing
+			// 'crypt' => array('crypt', array(
+			// 	// Hash type to use
+			// 	'type' => 'blowfish',
 			// )),
 
-			// // pbkdf2 hashing using Blowfish encryption
+			// // pbkdf2 hashing
 			// 'pbkdf2' => array('pbkdf2', array(
 			// 
 			// 	// Hash type to hash algorithm use
