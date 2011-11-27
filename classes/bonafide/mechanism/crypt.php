@@ -1,15 +1,17 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 /**
  * This mechanism provides support for PHP [One-way string hashing](http://php.net/manual/en/function.crypt.php).
- * 
+ *
  * Currently, only support 3 hashing type: blowfish, sha256, sha512
- * 
+ *
  * @package    Bonafide
  * @category   Mechanisms
  * @author     Wouter <wouter.w@gmx.net>
  * @author     Devi Mandiri <devi.mandiri@gmail.com>
+ * @author     Woody Gilk <woody.gilk@kohanaframework.org>
  * @copyright  (c) 2011 Wouter
  * @copyright  (c) 2011 Devi Mandiri
+ * @copyright  (c) 2011 Woody Gilk
  * @license    MIT
  */
 class Bonafide_Mechanism_Crypt extends Bonafide_Mechanism {
@@ -20,6 +22,11 @@ class Bonafide_Mechanism_Crypt extends Bonafide_Mechanism {
 	public $type = 'blowfish';
 
 	/**
+	 * @param  integer  iterations/cost
+	 */
+	public $iterations = 5000;
+
+	/**
 	 * Pre-check supported hashing mechanism.
 	 *
 	 * @param  array  configuration
@@ -28,14 +35,14 @@ class Bonafide_Mechanism_Crypt extends Bonafide_Mechanism {
 	{
 		parent::__construct($config);
 
-		$hash = strtoupper($this->type);
+		// Create a constant name from the type
+		$hash = 'CRYPT_'.strtoupper($this->type);
 
-		$hash = "CRYPT_{$hash}";
-
-		if ( ! defined($hash) OR ! $hash)
+		if ( ! defined($hash))
 		{
-			throw new Bonafide_Exception('This server does not support :hash hashing',
-				array(':hash' => $hash));
+			throw new Bonafide_Exception('This server does not support :hash hashing', array(
+					':hash' => $hash,
+				));
 		}
 	}
 
@@ -46,14 +53,9 @@ class Bonafide_Mechanism_Crypt extends Bonafide_Mechanism {
 		switch (strtolower($this->type))
 		{
 			case 'sha256':
+			case 'sha512':
 				$salt = $this->sha($salt, $iterations);
 			break;
-
-			case 'sha512':
-				$salt = $this->sha($salt, $iterations, 6);
-			break;
-
-			// default blowfish
 			default:
 				$salt = $this->blowfish($salt, $iterations);
 			break;
@@ -69,7 +71,7 @@ class Bonafide_Mechanism_Crypt extends Bonafide_Mechanism {
 
 	/**
 	 * Blowfish hashing.
-	 * 
+	 *
 	 * @param  string  input salt
 	 * @param  int     number between 4 and 31, base-2 logarithm of the iteration count
 	 * @return string
@@ -82,9 +84,21 @@ class Bonafide_Mechanism_Crypt extends Bonafide_Mechanism {
 			$salt = Text::random('alnum', 22);
 		}
 
-		if ($iterations === NULL)
+		// Truncate salt to 22 characters
+		$salt = substr($salt, 0, 22);
+
+		if ( ! $iterations)
 		{
-			$iterations = 12;
+			if ($this->iterations)
+			{
+				// Use configured iterations
+				$iterations = $this->iterations;
+			}
+			else
+			{
+				// Default to cost of 12
+				$iterations = 12;
+			}
 		}
 
 		// Apply 0 padding to the iterations, normalize to a range of 4-31
@@ -96,13 +110,12 @@ class Bonafide_Mechanism_Crypt extends Bonafide_Mechanism {
 
 	/**
 	 * SHA256/SHA512 hashing.
-	 * 
+	 *
 	 * @param  string  input salt
 	 * @param  int     number between 1000 and 99999999
-	 * @param  int     SHA256 => 5, SHA512 => 6
 	 * @return string
 	 */
-	protected function sha($salt = NULL, $iterations, $round = 5)
+	protected function sha($salt = NULL, $iterations = NULL)
 	{
 		if ( ! $salt)
 		{
@@ -112,9 +125,35 @@ class Bonafide_Mechanism_Crypt extends Bonafide_Mechanism {
 		// Truncate salt to 16 chars
 		$salt = substr($salt, 0, 16);
 
-		$iterations = Valid::range($iterations, 1000, 99999999) ? $iterations : 5000;
+		if ( ! $iterations)
+		{
+			if ($this->iterations)
+			{
+				// Use configured iterations
+				$iterations = $this->iterations;
+			}
+			else
+			{
+				// Default to 5000 iterations
+				$iterations = 5000;
+			}
+		}
 
-		return'$'.$round.'$rounds='.$iterations.'$'.$salt.'$';
+		// Normalize the range
+		$iterations = min(99999999, max($iterations, 1000));
+
+		if (substr($this->type, -3) === '256')
+		{
+			// SHA256
+			$prefix = '$5$';
+		}
+		else
+		{
+			// SHA512
+			$prefix = '$6$';
+		}
+
+		return $prefix.'rounds='.$iterations.'$'.$salt.'$';
 	}
 
 	public function check($password, $hash, $salt = NULL, $iterations = NULL)
@@ -122,41 +161,20 @@ class Bonafide_Mechanism_Crypt extends Bonafide_Mechanism {
 		switch (strtolower($this->type))
 		{
 			case 'sha256':
-				return $this->sha_check($password, $hash, $salt, $iterations);
-			break;
-
 			case 'sha512':
-				return $this->sha_check($password, $hash, $salt, $iterations, 6);
+				// $5|6$ (3) rounds=<iterations> $ (1) <salt> (16)
+				preg_match('/^\$(?:5|6)\$rounds=(\d+)\$(.{16})/D', $hash, $matches);
 			break;
-
-			// default blowfish
 			default:
-				return $this->blowfish_check($password, $hash, $salt, $iterations);
+				// $2a$ (4) 00 (2) $ (1) <salt> (22)
+				preg_match('/^\$2a\$(\d{2})\$(.{22})/D', $hash, $matches);
 			break;
 		}
-	}
-
-	protected function blowfish_check($password, $hash, $salt = NULL, $iterations = NULL)
-	{
-		// $2a$ (4) 00 (2) $ (1) <salt> (22)
-		preg_match('/^\$2a\$(\d{2})\$(.{22})/D', $hash, $matches);
 
 		// Extract the iterations and salt from the hash
 		list($_, $iterations, $salt) = $matches;
 
 		return parent::check($password, $hash, $salt, $iterations);
-	}
-
-	protected function sha_check($password, $hash, $salt = NULL, $iterations = NULL, $round = 5)
-	{
-		if (preg_match('/^\$(['.$round.'])\$rounds=(\d+)\$(.{16})/D', $hash, $matches))
-		{
-			list($_, $_, $iterations, $salt) = $matches;
-
-			return parent::check($password, $hash, $salt, $iterations);
-		}
-
-		return FALSE;
 	}
 
 } // End Bonafide Mechanism Crypt
