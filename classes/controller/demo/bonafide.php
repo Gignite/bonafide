@@ -80,4 +80,34 @@ class Controller_Demo_Bonafide extends Controller_Demo {
 			;
 	}
 
+	public function demo_hash()
+	{
+		if ($this->request->method() === 'POST')
+		{
+			// Get the string from POST
+			$hash = Arr::get($_POST, 'hash');
+
+			if ( ! $hash)
+			{
+				// No parameters included
+				$this->request->redirect($this->request->uri());
+			}
+
+			$bonafide = Bonafide::instance();
+
+			$response = $bonafide->hash($hash);
+
+			$this->content = Debug::vars($response);
+		}
+		else
+		{
+			$this->content = View::factory('demo/form')
+				->set('message', 'Enter a string to hash.')
+				->set('inputs', array(
+					'String' => Form::input('hash'),
+				))
+				;
+		}
+	}
+
 } // End Bonafide
